@@ -1,60 +1,161 @@
+import java.util.Random;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
 
 public class Kaardipakk {
 
+    private ArrayList<Kaart> kaardid; //Kaardipakis on List kaarte
 
+    public Kaardipakk() {
 
-    // 2. Klassis peaks olema privaatne isendiväli kaartidest:
-    // List või arraylist, mis koosnevad "Kaart" tüüpi objektidest (List<Kaart> näiteks)
-    private List<Kaart> kaardid = new ArrayList<>();
-
-
-    // 3. Konstruktor, milles sellele isendiväljale luuakse siis List vs arraylist kaartides
-    // ( nt. this.kaardid = new ArrayList<Kaart>() )
-    public Kaardipakk(List<Kaart> kaardid) {
-        this.kaardid = kaardid;
-    }
-
-
-    // 4. Public meetodid, mis ei tagasta midagi ( void ) nimega koostaPakk ja kaardiVäärtus
-    // - nende funktsioonide sisu ma teen pärast ise
-    public void koostaPakk(){
+        this.kaardid = new ArrayList<Kaart>();
 
     }
 
-    public void kaardiVäärtus(){
+    //Pakis on 52 kaarti
+    public void koostaTaisPakk() {
+        //Lisan kõik võimalikud 52 mastide-arvude kombinatsiooni pakki
+        for (Mast kaardiMast : Mast.values()) {
+            for (Vaartus kaardiVaartus : Vaartus.values()) {
+                this.kaardid.add(new Kaart(kaardiMast, kaardiVaartus));
+            }
+        }
+    }
+
+
+    //Segan pakki
+    public void sega() {
+        //Koostan ajutise kaardipaki, mis hiljem asendab hetkest pakki
+        ArrayList<Kaart> ajutineKaardipakk = new ArrayList<Kaart>();
+
+        Random suvaline = new Random();
+        int suvaliseKaardiIndeks;
+        int algneSuurus = this.kaardid.size();
+
+        for (int i = 0; i < algneSuurus; i++) {
+            suvaliseKaardiIndeks = suvaline.nextInt((this.kaardid.size() - 1 - 0) + 1) + 0;
+            ajutineKaardipakk.add(this.kaardid.get(suvaliseKaardiIndeks));
+
+            this.kaardid.remove(suvaliseKaardiIndeks);
+        }
+        this.kaardid = ajutineKaardipakk;
+    }
+
+
+    public void eemaldaKaart(int i) {
+        this.kaardid.remove(i);
+    }
+
+    public Kaart getKaart(int i) {
+        return this.kaardid.get(i);
+    }
+
+
+    //Võtab pakist kõige pealmise kaardi
+    public void votaKaart(Kaardipakk tulev) {
+        //Lisab võetavast pakist kõige esimse kaardi siia pakki
+        this.kaardid.add(tulev.getKaart(0));
+        //Eemaldab võetavast pakist kaardi, mis siia pakki asetati
+        tulev.eemaldaKaart(0);
+    }
+
+    public void lisaKaart(Kaart lisaKaart) {
+        this.kaardid.add(lisaKaart);
+    }
+
+
+    //Kalkuleerib paki arvulise väärtuse
+    public int kaardiVaartus() {
+
+        int arvulineVaartus = 0;
+
+        int assad = 0; // ässade arv
+
+        for (Kaart kaart : this.kaardid) {
+            switch (kaart.getVaartus()) {
+                case KAKS:
+                    arvulineVaartus += 2;
+                    break;
+                case KOLM:
+                    arvulineVaartus += 3;
+                    break;
+                case NELI:
+                    arvulineVaartus += 4;
+                    break;
+                case VIIS:
+                    arvulineVaartus += 5;
+                    break;
+                case KUUS:
+                    arvulineVaartus += 6;
+                    break;
+                case SEITSE:
+                    arvulineVaartus += 7;
+                    break;
+                case KAHEKSA:
+                    arvulineVaartus += 8;
+                    break;
+                case ÜHEKSA:
+                    arvulineVaartus += 9;
+                    break;
+                case KÜMME:
+                    arvulineVaartus += 10;
+                    break;
+                case POISS:
+                    arvulineVaartus += 10;
+                    break;
+                case EMAND:
+                    arvulineVaartus += 10;
+                    break;
+                case KUNINGAS:
+                    arvulineVaartus += 10;
+                    break;
+                case ÄSS:
+                    assad += 1;
+                    break;
+            }
+        }
+
+        //Ässad on olenevalt olukorrast kas 1 või 11
+        for (int i = 0; i < assad; i++) {
+            //Ässa väärtus on 1, kui teiste kaartide väärtuste summa on 11 või üle selle
+            if (arvulineVaartus > 10) {
+                arvulineVaartus += 1;
+            } else { //Ässa väärtus on 11, kui teiste kaartide väärtuste summa on 10 või alla selle
+                arvulineVaartus += 11;
+            }
+        }
+
+        return arvulineVaartus;
 
     }
-// 5. Public meetod pakiSuurus mis tagastab int-i. See siis tagastab mitu liiget
-// loodud kaardipaki Listis (ül 2) on
-    public int pakiSuurus(){
-        return kaardid.size();
-    }
-// 6. toString meetod, mis prindib 2. ülesandes loodud listi välja
-    @Override
+
+
     public String toString() {
-        return "Kaardipaki sisu on järgmine: " + kaardid;
+        String kaardiValjund = "";
+        for (Kaart kaart : this.kaardid) {
+            kaardiValjund += "\n" + kaart.toString();
+        }
+
+        return kaardiValjund;
+
     }
-// 7. Public lisaKaart meetod, mis ei tagasta midagi aga parameetrik võtab Kaart tüüpi objekti.
-// See siis peaks lisama parameetrina saadud kaardi 2. ülesandes tehtud listi
-    public void lisaKaart(Kaart kaart){
-        kaardid.add(kaart);
+
+    public void paneKoikPakki(Kaardipakk sihtpunkt) {
+        int pakiSuurus = this.kaardid.size();
+        //paneb kaardid sihtpunkti pakki
+        for (int i = 0; i < pakiSuurus; i++) {
+            sihtpunkt.lisaKaart(this.getKaart(i));
+        }
+
+        //eemaldab kaardid siinsest pakist
+        for (int i = 0; i < pakiSuurus; i++) {
+            this.eemaldaKaart(0);
+        }
     }
-// 8. Public getKaart, mis tagastab Kaardi ja võtab parameetrina indeksi (int).
-// Tagastab kaardi sellest 2. ülesande listist antud indeksil
-    public Kaart getKaart(int kaardiAsukoht){
-        return kaardid.get(kaardiAsukoht);
+
+    public int pakiSuurus() {
+        return this.kaardid.size();
     }
-// 9. Public eemaldaKaart, mis ei tagasta midagi, parameetrik võtab indeksi ja kustutab kaardi 2.
-// ülesande listist antud indeksil
-    public void eemaldaKaart(int kaardiAsukoht){
-        kaardid.remove(kaardiAsukoht);
-    }
-// 10. Public segaPakk, mis ei tagasta midagi ja ei võta parameetreid.
-// See muudab 2. ülesandes loodud listi niimoodi, et segab seal listis loodud kaardid
-    public void segaPakk(){
-        Collections.shuffle(kaardid);
-    }
+
+
 }
